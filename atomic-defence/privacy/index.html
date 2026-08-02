@@ -3,12 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Atomic Defence — a mid-century missile defence game</title>
-<meta name="description" content="Six cities, one battery, a hundred waves. A mid-century arcade defence game coming soon to Google Play. Play one wave in your browser.">
+<title>Atomic Defence — Privacy Policy</title>
+<meta name="description" content="Privacy policy for the Android game Atomic Defence. The app collects no data of any kind and holds no internet permission.">
 <meta name="color-scheme" content="light">
-<meta property="og:title" content="Atomic Defence">
-<meta property="og:description" content="Six cities. One battery. A hundred waves of warheads coming down. Coming soon to Google Play.">
-<meta property="og:type" content="website">
 <style>
 @font-face {
     font-family: 'Fugaz One';
@@ -44,6 +41,8 @@ header, main, footer { position:relative; z-index:1; }
 
 .masthead { text-align:center; padding:3.5rem 1.25rem 1.5rem; max-width:46rem; margin:0 auto; }
 .burst { width:92px; height:92px; display:block; margin:0 auto .4rem; }
+.eyebrow a.back { color:var(--red); text-decoration:none; }
+.eyebrow a.back:hover { text-decoration:underline; }
 .eyebrow {
   font-weight:700; font-size:.78rem; letter-spacing:.22em; color:var(--red);
   margin:0 0 .3rem;
@@ -62,12 +61,14 @@ h1 {
 
 /* Poster card: cream plate with the game's offset red print shadow */
 .card {
-  position:relative; max-width:46rem; margin:1.5rem auto 0;
+  /* Side margin so the offset print shadow is never clipped on a phone */
+  position:relative; max-width:46rem; margin:1.5rem 14px 0;
   background:var(--cream); border:3px solid var(--ink);
   box-shadow:8px 8px 0 var(--red);
   padding:2rem 1.6rem 2.4rem;
 }
 @media (min-width:640px) { .card { padding:2.6rem 2.6rem 3rem; } }
+@media (min-width:calc(46rem + 40px)) { .card { margin-left:auto; margin-right:auto; } }
 
 .hero { text-align:center; padding:.5rem 0 1.6rem; border-bottom:3px solid var(--ink); margin-bottom:1.8rem; }
 .hero-lead { margin:0; font-weight:700; font-size:.8rem; letter-spacing:.2em; color:var(--teal-dk); }
@@ -128,67 +129,6 @@ footer { margin-top:2.5rem; }
   @keyframes spin { to { transform:rotate(360deg); } }
 }
 
-.masthead { padding-bottom:2.5rem; }
-h1 { font-size:clamp(2.2rem, 11vw, 4.2rem); }
-.masthead .eyebrow { margin-top:.55rem; font-size:.82rem; }
-
-/* Call to action: the poster plate treatment, as a button */
-.cta {
-  display:inline-block; margin-top:1.8rem; padding:.9rem 2rem .95rem;
-  background:var(--red); color:var(--cream); text-decoration:none;
-  border:3px solid var(--ink); box-shadow:6px 6px 0 var(--ink);
-  transition:transform .08s ease, box-shadow .08s ease;
-}
-.cta:hover { color:var(--cream); transform:translate(2px,2px); box-shadow:4px 4px 0 var(--ink); }
-.cta:active { transform:translate(6px,6px); box-shadow:0 0 0 var(--ink); }
-.cta-main {
-  display:block; font-family:'Fugaz One', Impact, sans-serif;
-  font-size:1.6rem; line-height:1.1; letter-spacing:.02em;
-}
-.cta-sub { display:block; font-size:.7rem; letter-spacing:.14em; opacity:.85; margin-top:.25rem; }
-
-main { max-width:46rem; margin:0 auto; padding:0 14px; }
-.card { margin:0 0 1.6rem; box-shadow:6px 6px 0 var(--red); }
-.pitch .lead {
-  font-family:'Fugaz One', Impact, sans-serif; font-size:1.35rem;
-  line-height:1.35; color:var(--red); margin-bottom:.7rem;
-}
-
-/* Screenshots */
-.shots {
-  display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
-  gap:1rem; margin:0 0 1.9rem;
-}
-.shots figure { margin:0; text-align:center; }
-.shots img {
-  width:100%; height:auto; display:block;
-  border:3px solid var(--ink); box-shadow:5px 5px 0 var(--teal); background:var(--paper);
-}
-.shots figcaption {
-  margin-top:.55rem; font-weight:700; font-size:.72rem;
-  letter-spacing:.12em; color:var(--teal-dk);
-}
-
-/* Launcher roster */
-.roster { list-style:none; padding:0; margin:.9rem 0 0; }
-.roster li {
-  display:flex; gap:.7rem; align-items:baseline; flex-wrap:wrap;
-  padding:.42rem 0; border-bottom:1px dashed rgba(33,48,58,.25);
-}
-.roster li:last-child { border-bottom:0; }
-.roster b {
-  font-family:'Fugaz One', Impact, sans-serif; font-weight:400;
-  color:var(--ink); min-width:5.5rem; font-size:1rem;
-}
-.roster span { font-size:.86rem; color:rgba(33,48,58,.85); }
-
-.promises .price {
-  margin-top:1rem; font-family:'Fugaz One', Impact, sans-serif;
-  font-size:1.25rem; color:var(--red);
-}
-.promises .price b { color:var(--ink); }
-.ground a { color:var(--gold); }
-
 </style>
 </head>
 <body>
@@ -201,68 +141,74 @@ main { max-width:46rem; margin:0 auto; padding:0 14px; }
     <polygon points="100,44 110,76 140,62 128,90 156,100 128,110 140,138 110,124 100,156 90,124 60,138 72,110 44,100 72,90 60,62 90,76"
              fill="#FBF4E4"/>
   </svg>
-  <h1>ATOMIC DEFENCE</h1>
-  <p class="eyebrow">DEFEND THE SIX CITIES</p>
-  <p class="stamp">COMING SOON TO GOOGLE PLAY</p>
-
-  <a class="cta" href="demo/">
-    <span class="cta-main">PLAY ONE WAVE</span>
-    <span class="cta-sub">in your browser · no install</span>
-  </a>
+  <p class="eyebrow"><a href="../" class="back">← ATOMIC DEFENCE</a></p>
+  <h1>PRIVACY POLICY</h1>
+  <p class="stamp">LAST UPDATED 2 AUGUST 2026</p>
 </header>
 
-<main>
-  <section class="card pitch">
-    <p class="lead">Six cities. One battery. A hundred waves of warheads coming
-    down.</p>
-    <p>Tap the sky to detonate flak, catch the incoming rounds before they land,
-    and chain your blasts so one shot takes three. Flak is limited and the wave
-    will not wait for you.</p>
-  </section>
+<main class="card">
+  <div class="hero">
+    <p class="hero-lead">THIS GAME COLLECTS</p>
+    <p class="hero-word">NOTHING</p>
+    <p class="hero-sub">No data. No accounts. No tracking. No exceptions.</p>
+  </div>
 
-  <section class="shots" aria-label="Screenshots">
-    <figure><img src="shots/2-action.png" alt="Warheads descending on the cities as flak bursts intercept them" width="540" height="1200" loading="lazy"><figcaption>Chain the blasts</figcaption></figure>
-    <figure><img src="shots/3-launchers.png" alt="The launcher selection strip with a draining timer, mid-wave" width="540" height="1200" loading="lazy"><figcaption>Choose under fire</figcaption></figure>
-    <figure><img src="shots/4-threats.png" alt="A late wave with shielded, phantom, hunter and burrower threats plus a carrier airship" width="540" height="1200" loading="lazy"><figcaption>Nine kinds of trouble</figcaption></figure>
-    <figure><img src="shots/5-scores.png" alt="The local top ten high score table" width="540" height="1200" loading="lazy"><figcaption>Top ten, earned</figcaption></figure>
-  </section>
-
-  <section class="card">
-    <h2>A new launcher every tenth wave</h2>
-    <p>You commit to exactly one at the start of each wave — with its ammunition
-    and nothing else. The choice takes seconds, made while warheads are already
-    falling.</p>
-    <ul class="roster">
-      <li><b>FLAK</b><span>the balanced burst</span></li>
-      <li><b>SCATTER</b><span>splits into three, for swarms</span></li>
-      <li><b>LANCE</b><span>spears straight through a whole column</span></li>
-      <li><b>PULSE</b><span>kills nothing, freezes everything</span></li>
-      <li><b>SEEKER</b><span>two rounds that hunt on their own</span></li>
-      <li><b>MORTAR</b><span>lobbed, and leaves the sky burning</span></li>
-      <li><b>ATOM</b><span>enormous — and it will level your own cities</span></li>
-    </ul>
-  </section>
-
-  <section class="card">
-    <h2>Nine things trying to get past you</h2>
-    <p>Warheads that split at low altitude. Dodgers that swerve away from your
-    blasts. Armoured heavies that shed their plating before they die. Hunters
-    that ignore the cities entirely and eat your rounds in mid-air. Shielded
-    warheads with a rotating plate you have to shoot around. Phantoms that fade
-    out of sight between explosions. Burrowers that bury themselves instead of
-    detonating, and give you five seconds to dig them out. Bomber patrols, and
-    carrier airships that take three hits to bring down.</p>
-  </section>
-
-  <section class="card promises">
-    <h2>What it doesn't do</h2>
+  <section>
+    <h2>It cannot phone home</h2>
+    <p>Atomic Defence does not request the <code>INTERNET</code> permission. It is
+    not that we choose not to send your data anywhere — the app is technically
+    incapable of sending anything, to anyone, ever.</p>
     <ul class="ticks">
-      <li>No adverts</li>
-      <li>No in-app purchases</li>
-      <li>No internet permission — it cannot phone home</li>
-      <li>No accounts, no tracking, nothing collected</li>
+      <li>No analytics</li>
+      <li>No advertising</li>
+      <li>No crash reporting</li>
+      <li>No third-party SDKs</li>
+      <li>No contacts, location, camera, microphone or files</li>
+      <li>No device or advertising identifiers</li>
     </ul>
-    <p class="price">Just the game, once, for <b>£0.99</b>.</p>
+  </section>
+
+  <section>
+    <h2>What stays on your phone</h2>
+    <p>Two things are saved, in the app's own private storage on your device:</p>
+    <div class="chips">
+      <div class="chip">
+        <span class="chip-title">HIGH SCORES</span>
+        <span class="chip-body">The three initials you type, your score, the wave
+        you reached and the difficulty you played.</span>
+      </div>
+      <div class="chip">
+        <span class="chip-title">SETTINGS</span>
+        <span class="chip-body">Sound on or off, haptics on or off, and your
+        chosen difficulty.</span>
+      </div>
+    </div>
+    <p>This never leaves your device and no other app can read it. Uninstalling
+    the game deletes it permanently.</p>
+  </section>
+
+  <section>
+    <h2>Permissions</h2>
+    <p>One, and only one: <code>VIBRATE</code>. It drives the haptic feedback when
+    a warhead detonates. It grants access to no information whatsoever, and you
+    can switch haptics off in the game's menu at any time.</p>
+  </section>
+
+  <section>
+    <h2>Children</h2>
+    <p>The game is suitable for all ages and collects nothing from anyone,
+    children included.</p>
+  </section>
+
+  <section>
+    <h2>Changes</h2>
+    <p>Should this policy ever change, the new version appears at this address and
+    the date at the top is amended.</p>
+  </section>
+
+  <section class="contact">
+    <h2>Questions?</h2>
+    <p><a href="mailto:theredone7@gmail.com">theredone7@gmail.com</a></p>
   </section>
 </main>
 
@@ -285,8 +231,9 @@ main { max-width:46rem; margin:0 auto; padding:0 14px; }
     <circle cx="575" cy="14" r="8" fill="#DE3B26"/>
   </svg>
   <div class="ground">
-    <p><a href="privacy/">Privacy policy</a></p>
-    <p class="fineprint">This page loads no external scripts, fonts or trackers.</p>
+    <p>Atomic Defence · defend the six cities</p>
+    <p class="fineprint">This page loads no external scripts, fonts, images or
+    trackers. Everything it needs is in the page itself.</p>
   </div>
 </footer>
 
