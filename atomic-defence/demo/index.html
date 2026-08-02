@@ -2027,16 +2027,18 @@ function render() {
       'SHIELDS BLOCK ONE SIDE ONLY',
       'HUNTERS EAT YOUR OWN ROUNDS',
       'DIG BURROWERS OUT BEFORE THE FUSE',
-      { text: 'SURVIVE ALL ' + FINAL_WAVE + ' WAVES', col: PALETTE.gold }
+      // How far it goes is for players to find out, so the demo never says.
+      { text: DEMO ? 'SEE HOW FAR YOU GET'
+                   : 'SURVIVE ALL ' + FINAL_WAVE + ' WAVES', col: PALETTE.gold }
     ], '— TAP TO RETURN —', PALETTE.teal);
   } else if (mode === MODE.PAUSED) {
     drawPauseScreen();
   } else if (mode === MODE.DEMO_END) {
     const g = drawCard('WAVE 1 CLEAR', [
       { text: 'THAT WAS ONE WAVE', col: PALETTE.red },
-      'THERE ARE ' + FINAL_WAVE + ' OF THEM',
-      { text: 'SEVEN LAUNCHERS TO CHOOSE', col: PALETTE.tealDark },
-      { text: 'NINE THINGS COMING FOR YOU', col: PALETTE.tealDark },
+      'THEY DO NOT STOP COMING',
+      { text: 'MORE LAUNCHERS TO EARN', col: PALETTE.tealDark },
+      { text: 'WORSE THINGS TO MEET', col: PALETTE.tealDark },
       'SCORE  ' + score
     ], '', PALETTE.gold);
     const bw = Math.min(W * 0.5, 200);
