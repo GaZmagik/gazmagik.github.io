@@ -487,7 +487,7 @@ const LAUNCHERS = [
   { id: 'mortar',  name: 'MORTAR',  unlock: 50, ammo: 0.60, col: PALETTE.gold,
     blurb: 'LOBBED, LINGERING FIRE' },
   { id: 'atom',    name: 'ATOM',    unlock: 60, ammo: 0.15, col: PALETTE.red,
-    blurb: 'HUGE — MIND THE CITIES' }
+    blurb: 'HUGE. MIND THE CITIES' }
 ];
 const LAUNCHER_BY_ID = {};
 LAUNCHERS.forEach(l => { LAUNCHER_BY_ID[l.id] = l; });
@@ -1882,7 +1882,7 @@ function drawScores() {
   if (blink) {
     ctx.font = '700 13px "IBM Plex Mono", monospace';
     ctx.fillStyle = PALETTE.red;
-    ctx.fillText('— TAP TO RETURN —', W / 2, H - Math.max(56, SAFE.bottom + 40));
+    ctx.fillText('TAP TO RETURN', W / 2, H - Math.max(56, SAFE.bottom + 40));
   }
 }
 
@@ -1913,9 +1913,9 @@ function drawLauncherPick() {
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.font = '700 12px "IBM Plex Mono", monospace';
   ctx.lineWidth = 4; ctx.strokeStyle = PALETTE.cream;
-  ctx.strokeText('ARM A LAUNCHER — QUICK', W / 2, y0 - 22);
+  ctx.strokeText('ARM A LAUNCHER, QUICK', W / 2, y0 - 22);
   ctx.fillStyle = PALETTE.red;
-  ctx.fillText('ARM A LAUNCHER — QUICK', W / 2, y0 - 22);
+  ctx.fillText('ARM A LAUNCHER, QUICK', W / 2, y0 - 22);
 
   const barW = Math.min(W - margin * 2, bw * perRow + gap * (perRow - 1));
   ctx.fillStyle = 'rgba(33,48,58,0.25)';
@@ -2022,7 +2022,7 @@ function render() {
       'TAP THE SKY TO DETONATE FLAK',
       { text: 'CHAINED BLASTS MULTIPLY POINTS', col: PALETTE.tealDark },
       'A NEW LAUNCHER EVERY TENTH WAVE',
-      { text: 'PICK ONE FAST — NOTHING PAUSES', col: PALETTE.red },
+      { text: 'PICK ONE FAST. NOTHING PAUSES', col: PALETTE.red },
       'ITS AMMO IS ALL YOU GET',
       'SHIELDS BLOCK ONE SIDE ONLY',
       'HUNTERS EAT YOUR OWN ROUNDS',
@@ -2030,15 +2030,14 @@ function render() {
       // How far it goes is for players to find out, so nothing states the
       // total — not the demo, not the game, and not the store screenshots.
       { text: 'SEE HOW FAR YOU GET', col: PALETTE.gold }
-    ], '— TAP TO RETURN —', PALETTE.teal);
+    ], 'TAP TO RETURN', PALETTE.teal);
   } else if (mode === MODE.PAUSED) {
     drawPauseScreen();
   } else if (mode === MODE.DEMO_END) {
     const g = drawCard('WAVE 1 CLEAR', [
       { text: 'THAT WAS ONE WAVE', col: PALETTE.red },
-      'THEY DO NOT STOP COMING',
-      { text: 'MORE LAUNCHERS TO EARN', col: PALETTE.tealDark },
-      { text: 'WORSE THINGS TO MEET', col: PALETTE.tealDark },
+      'THEY KEEP COMING, AND WORSE',
+      { text: 'OTHER LAUNCHERS COME LATER', col: PALETTE.tealDark },
       'SCORE  ' + score
     ], '', PALETTE.gold);
     const bw = Math.min(W * 0.5, 200);
@@ -2058,7 +2057,7 @@ function render() {
       'FLAK FIRED ' + shots + '  ·  KILLS ' + kills,
       { text: 'BEST CHAIN  ×' + bestChain, col: PALETTE.tealDark },
       { text: diff().name + '  ×' + diff().score, col: diff().col }
-    ], '— TAP TO CONTINUE —', PALETTE.gold);
+    ], 'TAP TO CONTINUE', PALETTE.gold);
   } else if (mode === MODE.WAVE_END && waveBonus) {
     drawCard('WAVE ' + wave + ' CLEAR', [
       { text: 'CITY BONUS  +' + waveBonus.cities, col: PALETTE.teal },
@@ -2073,7 +2072,7 @@ function render() {
       'FLAK FIRED ' + shots + '  ·  KILLS ' + kills,
       { text: 'BEST CHAIN  ×' + bestChain, col: PALETTE.tealDark },
       { text: diff().name + '  ×' + diff().score, col: diff().col }
-    ], '— TAP TO RE-ARM —', PALETTE.red);
+    ], 'TAP TO RE-ARM', PALETTE.red);
     const bw = 130, bgap = 12;
     const bx0 = (W - bw * 2 - bgap) / 2;
     button(bx0, g.cy + g.ch + 14, bw, 38, 'MENU', () => { mode = MODE.MENU; });
