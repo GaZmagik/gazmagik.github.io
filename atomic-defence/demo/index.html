@@ -2027,9 +2027,9 @@ function render() {
       'SHIELDS BLOCK ONE SIDE ONLY',
       'HUNTERS EAT YOUR OWN ROUNDS',
       'DIG BURROWERS OUT BEFORE THE FUSE',
-      // How far it goes is for players to find out, so the demo never says.
-      { text: DEMO ? 'SEE HOW FAR YOU GET'
-                   : 'SURVIVE ALL ' + FINAL_WAVE + ' WAVES', col: PALETTE.gold }
+      // How far it goes is for players to find out, so nothing states the
+      // total — not the demo, not the game, and not the store screenshots.
+      { text: 'SEE HOW FAR YOU GET', col: PALETTE.gold }
     ], '— TAP TO RETURN —', PALETTE.teal);
   } else if (mode === MODE.PAUSED) {
     drawPauseScreen();
