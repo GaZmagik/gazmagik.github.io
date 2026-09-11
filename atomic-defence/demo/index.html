@@ -183,6 +183,11 @@ const FINAL_WAVE = 100;
 const DEMO = !!window.ATOMIC_DEMO;
 const DEMO_WAVES = 1;
 
+/* Where the demo sends a player who wants the rest of it. Only the demo's
+   end card uses this, so the shipped app never opens it. */
+const STORE_URL =
+  'https://play.google.com/store/apps/details?id=io.github.gazmagik.atomicdefence';
+
 /* ------------------------------------------------------------------ */
 /* Difficulty                                                         */
 /*                                                                    */
@@ -2169,10 +2174,11 @@ function render() {
     button((W - bw) / 2, g.cy + g.ch + 14, bw, 40, 'PLAY AGAIN',
       () => { resetGame(); restartLockUntil = performance.now() + 300; },
       { primary: true });
-    ctx.font = '700 11px "IBM Plex Mono", monospace';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = PALETTE.ink;
-    ctx.fillText('THE FULL GAME IS COMING TO GOOGLE PLAY', W / 2, g.cy + g.ch + 74);
+    // A real plate, not canvas text. The old line said the game was coming to
+    // Google Play, which stopped being true when it shipped, and painted text
+    // gives a player who wants it nothing to tap.
+    button((W - bw) / 2, g.cy + g.ch + 62, bw, 40, 'GET THE FULL GAME',
+      () => window.open(STORE_URL, '_blank', 'noopener'));
   } else if (mode === MODE.VICTORY) {
     drawCard('VICTORY', [
       { text: 'ALL ' + FINAL_WAVE + ' WAVES REPELLED', col: PALETTE.teal },

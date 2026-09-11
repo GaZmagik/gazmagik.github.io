@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Atomic Defence: a mid-century missile defence game</title>
-<meta name="description" content="Six cities, one battery, and they keep coming. A mid-century arcade defence game coming soon to Google Play. Play one wave in your browser.">
+<meta name="description" content="Six cities, one battery, and they keep coming. A mid-century arcade defence game, out now on Google Play. Play one wave free in your browser.">
 <meta name="color-scheme" content="light">
 <meta property="og:title" content="Atomic Defence">
-<meta property="og:description" content="Six cities. One battery. Wave after wave of warheads coming down. Coming soon to Google Play.">
+<meta property="og:description" content="Six cities. One battery. Wave after wave of warheads coming down. Out now on Google Play.">
 <meta property="og:type" content="website">
 <style>
 @font-face {
@@ -141,6 +141,14 @@ h1 { font-size:clamp(2.2rem, 11vw, 4.2rem); }
 }
 .cta:hover { color:var(--cream); transform:translate(2px,2px); box-shadow:4px 4px 0 var(--ink); }
 .cta:active { transform:translate(6px,6px); box-shadow:0 0 0 var(--ink); }
+/* The demo is still worth offering, so it keeps a plate of its own. The
+   store is the main road now, so this one is the quieter of the two. */
+.cta-quiet { background:var(--cream); color:var(--ink); }
+.cta-quiet:hover { color:var(--ink); }
+/* The stamp is a caption for the plates, so it sits on its own line above
+   them. Left inline it shares a row with the first button and drags the
+   whole group off centre. */
+.masthead .stamp { display:block; width:fit-content; margin-left:auto; margin-right:auto; }
 .cta-main {
   display:block; font-family:'Fugaz One', Impact, sans-serif;
   font-size:1.6rem; line-height:1.1; letter-spacing:.02em;
@@ -203,10 +211,15 @@ main { max-width:46rem; margin:0 auto; padding:0 14px; }
   </svg>
   <h1>ATOMIC DEFENCE</h1>
   <p class="eyebrow">DEFEND THE SIX CITIES</p>
-  <p class="stamp">COMING SOON TO GOOGLE PLAY</p>
+  <p class="stamp">OUT NOW ON GOOGLE PLAY</p>
 
-  <a class="cta" href="demo/">
-    <span class="cta-main">PLAY ONE WAVE</span>
+  <a class="cta" href="https://play.google.com/store/apps/details?id=io.github.gazmagik.atomicdefence">
+    <span class="cta-main">GET IT ON GOOGLE PLAY</span>
+    <span class="cta-sub">£1.19 including VAT · no adverts, nothing more to buy</span>
+  </a>
+
+  <a class="cta cta-quiet" href="demo/">
+    <span class="cta-main">PLAY ONE WAVE FREE</span>
     <span class="cta-sub">in your browser · no install</span>
   </a>
 </header>
@@ -256,8 +269,10 @@ main { max-width:46rem; margin:0 auto; padding:0 14px; }
 
   <section class="card promises">
     <h2>Price</h2>
-    <p class="price">£0.99, once.</p>
-    <p>No adverts, and nothing further to buy.</p>
+    <p class="price">£1.19, once.</p>
+    <p>That is £0.99 plus VAT, and it is what you pay in the United
+    Kingdom. Google converts the price for other countries. No adverts, and
+    nothing further to buy.</p>
   </section>
 </main>
 
