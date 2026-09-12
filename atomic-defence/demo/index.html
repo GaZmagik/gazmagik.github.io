@@ -183,6 +183,11 @@ const FINAL_WAVE = 100;
 const DEMO = !!window.ATOMIC_DEMO;
 const DEMO_WAVES = 1;
 
+/* Where the demo sends a player who wants the rest of it. Only the demo's
+   end card uses this, so the shipped app never opens it. */
+const STORE_URL =
+  'https://play.google.com/store/apps/details?id=io.github.gazmagik.atomicdefence';
+
 /* ------------------------------------------------------------------ */
 /* Difficulty                                                         */
 /*                                                                    */
@@ -252,6 +257,10 @@ function saveSettings() {
 /* ------------------------------------------------------------------ */
 const nativeHaptics = (window.Capacitor && window.Capacitor.Plugins &&
                        window.Capacitor.Plugins.AtomicHaptics) || null;
+/* Present only inside the packaged app, which is exactly where a rating
+   button makes sense: there is nothing to rate from the web demo. */
+const nativeStore = (window.Capacitor && window.Capacitor.Plugins &&
+                     window.Capacitor.Plugins.AtomicStore) || null;
 // Web fallback: the Vibration API has no amplitude, so only duration varies.
 const HAPTIC_FALLBACK = {
   launch:      12,
@@ -337,6 +346,47 @@ let score = 0, highScore = loadHighScore(), wave = 0;
 let shots = 0, kills = 0, bestChain = 1;
 
 /* High score table: local top 10, arcade three-initial entries. */
+/* In-app review, at a natural moment rather than behind a button. Google bars
+   the API from call-to-action buttons, because the quota may silently show
+   nothing and a dead button reads as broken; the RATE THIS GAME plate is a
+   plain store intent for that reason. This is the case the API is actually
+   for: "a strategic moment in the user journey (after they've used enough of
+   the app)". Asked once, on the menu, after a few finished runs, and never
+   preceded by a question of our own, which the guidance also forbids. */
+const PLAYS_KEY = 'atomic-defence.plays';
+const RATE_KEY = 'atomic-defence.rateAsked';
+const RATE_MIN_RUNS = 3;        // never on a first flush of beginner's luck
+let ratePending = 0;            // seconds left to wait once back at the menu
+
+/* Called when a run ends, with whether it ended WELL: a new personal best, a
+   place on the local table, or the whole game finished. Asking after a good
+   run rather than after a fixed count of them puts the question where the
+   player is pleased with themselves. The run count still applies, because on
+   an empty table the very first run qualifies for it by default. */
+function finishRun(good) {
+  let plays;
+  try {
+    plays = (parseInt(localStorage.getItem(PLAYS_KEY), 10) || 0) + 1;
+    localStorage.setItem(PLAYS_KEY, String(plays));
+    if (localStorage.getItem(RATE_KEY) === '1') return;
+  } catch (e) { return; }       // private mode: no counter, so never ask
+  if (good && plays >= RATE_MIN_RUNS && nativeStore) ratePending = 0.9;
+}
+
+/* Fires on the menu rather than over the game-over card, so the card is not
+   buried and the player is not asked to rate the moment they lost. */
+function maybeReview(dt) {
+  if (!ratePending || mode !== MODE.MENU) return;
+  ratePending -= dt;
+  if (ratePending > 0) return;
+  ratePending = 0;
+  try { localStorage.setItem(RATE_KEY, '1'); } catch (e) {}
+  // Play decides whether the card appears and tells us nothing useful either
+  // way. Nothing depends on the outcome and the player is never told it was
+  // attempted, so there is nothing to report and nothing to draw.
+  nativeStore.review().catch(() => {});
+}
+
 const TABLE_KEY = 'atomic-defence.table';
 const TABLE_MAX = 10;
 function loadTable() {
@@ -463,6 +513,19 @@ const THREAT_SCORE = {
   std: 100, smart: 150, heavy: 300, bomber: 250,
   hunter: 350, shielded: 400, phantom: 450, burrower: 500, carrier: 800
 };
+/* Roughly what each threat costs to put down, in rounds, against a plain
+   warhead at 1.0. Armour soaks a hit, shields waste one outright, dodgers and
+   phantoms make you miss. The magazine is scaled by the wave's average so a
+   late mix of the awkward ones does not quietly starve you. */
+const THREAT_COST = {
+  std: 1, smart: 1.35, heavy: 2.2, hunter: 1.5,
+  shielded: 1.8, phantom: 1.6, burrower: 1.45
+};
+/* How often a kill takes the warhead's payload with it, and how far that
+   secondary reaches. A plain flak burst is 58, so a cook-off covers rather
+   more than two and a half times the area and is worth chasing. */
+const COOKOFF_CHANCE = 0.16;
+const COOKOFF_R = 96;
 
 /* ------------------------------------------------------------------ */
 /* Launchers                                                          */
@@ -492,6 +555,10 @@ const LAUNCHERS = [
 const LAUNCHER_BY_ID = {};
 LAUNCHERS.forEach(l => { LAUNCHER_BY_ID[l.id] = l; });
 
+/* Half-width of the lance's kill corridor. The beam is drawn from this same
+   number, so what it sweeps is what it looks like it sweeps. */
+const LANCE_R = 34;
+
 let launcher = 'flak';          // chosen for the current wave
 let pickTimer = 0;              // seconds left to choose; 0 = choice closed
 let shotsThisWave = 0;
@@ -505,7 +572,8 @@ function launcherAmmoFactor() {
 }
 function baseAmmo(cfg, l) {
   const factor = l ? l.ammo : launcherAmmoFactor();
-  return Math.max(3, Math.round((11 + cfg.count * 0.9) * factor * diff().ammo));
+  return Math.max(3, Math.round((11 + cfg.count * 0.9) * mixCost(wave)
+                                * factor * diff().ammo));
 }
 function chooseLauncher(id) {
   if (!LAUNCHER_BY_ID[id] || wave < LAUNCHER_BY_ID[id].unlock) return;
@@ -534,6 +602,17 @@ function threatWeights(w) {
     phantom:  ramp(THREAT_INTRO.phantom,  0.50, 13),
     burrower: ramp(THREAT_INTRO.burrower, 0.40, 11)
   };
+}
+
+/* The average round-cost of the wave's mix: 1.0 while it is all plain
+   warheads, and climbing as the harder types take over the roster. Feeds
+   straight into the magazine, so the flak allowance tracks what is actually
+   falling rather than just how much of it there is. */
+function mixCost(w) {
+  const ws = threatWeights(w);
+  let total = 0, cost = 0;
+  for (const k in ws) { total += ws[k]; cost += ws[k] * (THREAT_COST[k] || 1); }
+  return total > 0 ? cost / total : 1;
 }
 
 function rollThreatType() {
@@ -605,16 +684,18 @@ function spawnExplosion(x, y, chain, hostile, opts) {
     spokes: 7 + Math.floor(Math.random() * 4),
     rot: Math.random() * Math.PI
   });
-  for (let i = 0; i < (hostile ? 10 : 16); i++) {
+  const shards = opts.cookoff ? 30 : (hostile ? 10 : 16);
+  for (let i = 0; i < shards; i++) {
     const a = Math.random() * Math.PI * 2, sp = 40 + Math.random() * 140;
     particles.push({
       x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 30,
       life: 0.5 + Math.random() * 0.5, t: 0,
-      col: hostile ? PALETTE.red : (chain ? PALETTE.gold : PALETTE.teal),
+      col: hostile ? PALETTE.red : (chain || opts.cookoff ? PALETTE.gold : PALETTE.teal),
       size: 1.5 + Math.random() * 2.5
     });
   }
   if (hostile) boom(0.14, 0.3);
+  else if (opts.cookoff) SFX.chain(5);
   else if (chain) SFX.chain(Math.min(chain, 6));
   else SFX.burst();
 }
@@ -640,8 +721,20 @@ function killMissile(j, m, chain) {
   const pts = addScore(THREAT_SCORE[m.type] * chain);
   addFloater(m.x, m.y - 10, chain > 1 ? `${pts} ×${chain}` : `${pts}`,
              chain > 1 ? PALETTE.gold : PALETTE.teal, chain > 2);
-  spawnExplosion(m.x, m.y, chain, false);
-  shake = Math.min(10, shake + 1.5 + chain);
+  // Now and then the warhead's own payload goes up with it. The secondary is
+  // wide enough to take the neighbours too, which is the whole point of it.
+  const cookoff = Math.random() < COOKOFF_CHANCE;
+  if (cookoff) {
+    spawnExplosion(m.x, m.y, chain, false,
+                   { maxR: COOKOFF_R, hold: 0.5, col: PALETTE.gold, cookoff: true });
+    addFloater(m.x, m.y + 14, 'COOK-OFF!', PALETTE.gold, false);
+    haptic('armour');
+  } else {
+    spawnExplosion(m.x, m.y, chain, false);
+  }
+  // One clamp, applied once, or the cook-off kick would be capped straight
+  // back down to the ordinary ceiling on the very next line.
+  shake = Math.min(cookoff ? 16 : 10, shake + 1.5 + chain + (cookoff ? 6 : 0));
 }
 
 function killBomber(j, b, chain, src) {
@@ -793,11 +886,16 @@ function destroyCity(city) {
     // Delay the game-over card a beat so the impact reads.
     setTimeout(() => {
       if (!cities.some(c => c.alive)) {
+        // Both judged BEFORE highScore is raised and before the table is
+        // touched, or a new best could never be seen from here.
+        const beatBest = score > highScore;
+        const tabled = qualifies(score);
         highScore = Math.max(highScore, score);
         saveHighScore(highScore);
         SFX.gameOver();
         haptic('gameover');
-        if (qualifies(score)) { entryName = ''; mode = MODE.ENTRY; }
+        finishRun(beatBest || tabled);
+        if (tabled) { entryName = ''; mode = MODE.ENTRY; }
         else mode = MODE.GAME_OVER;
       }
     }, 900);
@@ -809,6 +907,7 @@ function destroyCity(city) {
 /* ------------------------------------------------------------------ */
 function update(dt) {
   titlePulse += dt;
+  maybeReview(dt);
   shake = Math.max(0, shake - dt * 40);
   flash = Math.max(0, flash - dt * 1.8);
   slowMo += (1 - slowMo) * Math.min(1, dt * 2.5);
@@ -1023,14 +1122,14 @@ function update(dt) {
         for (let j = missiles.length - 1; j >= 0; j--) {
           const m = missiles[j];
           if (it.hitBy.indexOf(m) !== -1) continue;
-          if (Math.hypot(m.x - it.x, m.y - it.y) < 16) {
+          if (Math.hypot(m.x - it.x, m.y - it.y) < LANCE_R) {
             it.hitBy.push(m);
             damageMissile(j, m, 1, it, it.x, it.y);
           }
         }
         for (let j = bombers.length - 1; j >= 0; j--) {
           const b = bombers[j];
-          if (Math.hypot(b.x - it.x, b.y - it.y) < 18) killBomber(j, b, 1, it);
+          if (Math.hypot(b.x - it.x, b.y - it.y) < LANCE_R + 2) killBomber(j, b, 1, it);
         }
         if (it.y < -30 || it.x < -30 || it.x > W + 30 || it.y > groundY) {
           interceptors.splice(i, 1);
@@ -1102,6 +1201,7 @@ function update(dt) {
         saveHighScore(highScore);
       } else if (wave >= FINAL_WAVE) {
         // The card comes first; the score table can wait for a tap.
+        finishRun(true);
         mode = MODE.VICTORY;
         highScore = Math.max(highScore, score);
         saveHighScore(highScore);
@@ -1501,12 +1601,26 @@ function drawInterceptor(it) {
   ctx.strokeStyle = 'rgba(46,140,133,0.35)';
   ctx.lineWidth = isLance ? 3 : 2;
   ctx.beginPath(); ctx.moveTo(it.ox, it.oy); ctx.lineTo(it.x, it.y); ctx.stroke();
+  const len = Math.hypot(it.vx, it.vy) || 1;
+  // The lance is drawn long as well as wide: it kills everything its circle
+  // crosses as it travels, so a stubby head would read as a blob, not a spear.
+  const tl = isLance ? 96 : 14;
+  const hx = it.x - it.vx / len * tl, hy = it.y - it.vy / len * tl;
+  // The lance sweeps a corridor far wider than a shell, so it is drawn wide
+  // enough to own it. Anything it kills is inside the glow you can see.
+  if (isLance) {
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = lc.col;
+    ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(it.x, it.y);
+    ctx.globalAlpha = 0.13; ctx.lineWidth = LANCE_R * 2; ctx.stroke();
+    ctx.globalAlpha = 0.28; ctx.lineWidth = LANCE_R;     ctx.stroke();
+    ctx.restore();
+  }
   ctx.strokeStyle = lc.col;
   ctx.lineWidth = isLance ? 5 : 3;
-  const len = Math.hypot(it.vx, it.vy) || 1;
-  const tl = isLance ? 46 : 14;
   ctx.beginPath();
-  ctx.moveTo(it.x - it.vx / len * tl, it.y - it.vy / len * tl);
+  ctx.moveTo(hx, hy);
   ctx.lineTo(it.x, it.y);
   ctx.stroke();
   if (it.kind === 'atom') {
@@ -1579,8 +1693,15 @@ function drawHUD() {
   const lc = LAUNCHER_BY_ID[launcher] || LAUNCHERS[0];
   ctx.fillText(lc.name, W - padR, padT);
   ctx.font = '26px "Fugaz One", sans-serif';
-  ctx.fillStyle = ammo > 3 ? lc.col : PALETTE.red;
+  const lowAmmo = ammo <= 3;
+  ctx.fillStyle = lowAmmo ? PALETTE.red : lc.col;
+  // Red against the ink of the wave counter beside it is the one warning in
+  // the game carried by colour alone, and red-green colour blindness flattens
+  // both to the same dark olive. So the count pulses as well. About 1.6Hz,
+  // comfortably under the three-flashes-a-second guidance.
+  if (lowAmmo) ctx.globalAlpha = 0.55 + 0.45 * Math.abs(Math.sin(titlePulse * 5));
   ctx.fillText(String(ammo), W - padR, padT + 14);
+  ctx.globalAlpha = 1;
 
   if (mode === MODE.PLAYING) {
     // Pause plate tucked into the ground strip, clear of the sky and battery.
@@ -1716,7 +1837,9 @@ function drawMenu() {
     ctx.fillText('BEST ' + String(highScore).padStart(6, '0'), W / 2, cy + (small ? 58 : 70));
   }
   const bw = Math.min(W * 0.62, 260);
-  const by = Math.min(H * 0.44, H - 300);
+  // The reserve grows only when the rate plate is actually going to be drawn,
+  // so the web build and the demo keep the exact layout they already had.
+  const by = Math.min(H * 0.44, H - (nativeStore ? 346 : 300));
   button((W - bw) / 2, by, bw, 56, 'PLAY', () => {
     resetGame();
     restartLockUntil = performance.now() + 300;
@@ -1726,6 +1849,14 @@ function drawMenu() {
     () => { entryIdx = -1; mode = MODE.SCORES; });
   difficultyRow(by + 188);
   toggleRow(by + 246);
+  if (nativeStore) {
+    button((W - bw) / 2, by + 294, bw, 34, 'RATE THIS GAME', () => {
+      haptic('ui');
+      // A rejection means the device has neither Play nor a browser. Nothing
+      // useful to say about that, so the plate just does nothing.
+      nativeStore.rate().catch(() => {});
+    });
+  }
 }
 
 /* Four plates, the chosen one filled. Score multiplier is shown because it is
@@ -2024,9 +2155,8 @@ function render() {
       'A NEW LAUNCHER EVERY TENTH WAVE',
       { text: 'PICK ONE FAST. NOTHING PAUSES', col: PALETTE.red },
       'ITS AMMO IS ALL YOU GET',
-      'SHIELDS BLOCK ONE SIDE ONLY',
-      'HUNTERS EAT YOUR OWN ROUNDS',
-      'DIG BURROWERS OUT BEFORE THE FUSE',
+      // The card covers the controls and nothing else. What turns up in the
+      // later waves is not named, described, or hinted at.
       // How far it goes is for players to find out, so nothing states the
       // total — not the demo, not the game, and not the store screenshots.
       { text: 'SEE HOW FAR YOU GET', col: PALETTE.gold }
@@ -2044,10 +2174,11 @@ function render() {
     button((W - bw) / 2, g.cy + g.ch + 14, bw, 40, 'PLAY AGAIN',
       () => { resetGame(); restartLockUntil = performance.now() + 300; },
       { primary: true });
-    ctx.font = '700 11px "IBM Plex Mono", monospace';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = PALETTE.ink;
-    ctx.fillText('THE FULL GAME IS COMING TO GOOGLE PLAY', W / 2, g.cy + g.ch + 74);
+    // A real plate, not canvas text. The old line said the game was coming to
+    // Google Play, which stopped being true when it shipped, and painted text
+    // gives a player who wants it nothing to tap.
+    button((W - bw) / 2, g.cy + g.ch + 62, bw, 40, 'GET THE FULL GAME',
+      () => window.open(STORE_URL, '_blank', 'noopener'));
   } else if (mode === MODE.VICTORY) {
     drawCard('VICTORY', [
       { text: 'ALL ' + FINAL_WAVE + ' WAVES REPELLED', col: PALETTE.teal },
